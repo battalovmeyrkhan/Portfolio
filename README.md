@@ -14,3 +14,7 @@
 //Проект еще не до конца завершен.//
 
 
+<img width="892" height="610" alt="image" src="https://github.com/user-attachments/assets/62b5eddf-ee85-452b-8849-79ab43ae8fde" />
+
+
+
