@@ -1,5 +1,9 @@
 // настройка датчика
 #include "DHT.h"
+// подключение библиотек для вайфай и mqtt
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <WiFiClientSecure.h>
 
 #define DHTPIN 4
 #define DHTTYPE DHT22
@@ -21,6 +25,36 @@ int sum = 0;
   }
   lux = sum / 10;
  }
+
+WiFiClientSecure espClient;
+PubSubClient client(espClient);
+
+// подключение к mqtt (пароль и сервер я убрал для безопаснсти)
+const char* mqtt_server = "";
+const int mqtt_port = 8883;
+
+
+const char* mqtt_user = "esp32";
+const char* mqtt_pass = "";
+
+unsigned long lastPublish = 0;
+const unsigned long publishInterval = 5000;
+
+// функция для обратной связи
+void reconnectMQTT() {
+  while (!client.connected()) {
+    Serial.print("Connecting to MQTT...");
+
+    if (client.connect("ESP32_Client", mqtt_user, mqtt_pass)) {
+      Serial.println("connected");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 3 sec");
+      delay(3000);
+    }
+  }
+}
 
  // Пороговые значения
  float tmpSTOP1 = 1.9;
@@ -108,6 +142,31 @@ if (lux > luxSTOP){
   luxstate = LUX_OK;
 }
 
+void updateStates() {
+  checkTemp();
+  checkHumid();
+  checkGas();
+  checkLux();
+  updateMode();
+}
+// телеметрия
+void publishData() {
+
+  String payload = "{";
+  payload += "\"temperature\":" + String(temperature) + ",";
+  payload += "\"humidity\":" + String(humidity) + ",";
+  payload += "\"gas\":" + String(gasValue) + ",";
+  payload += "\"lux\":" + String(lux) + ",";
+  payload += "\"mode\":\"";
+  payload += (systemMode == EMERGENCY ? "EMERGENCY" : "NORMAL");
+  payload += "\"}";
+
+  client.publish("potato/telemetry", payload.c_str());
+Serial.println("MQTT data published");
+}
+
+
+ 
 }
 // Логика системы и оутпут
 void controlLogic(){
@@ -166,26 +225,38 @@ void printTempState() {
 void setup() {
   Serial.begin(115200);
   dht.begin();
+ // подключение к вай-фай
+  Serial.print("Connecting to WiFi");
+  WiFi.begin("Wokwi-GUEST", "" );
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(100);
+    Serial.print(".");
+  }
+  Serial.println(" Connected!");
+  
+   espClient.setInsecure();
+  client.setServer(mqtt_server, mqtt_port);
 }
 
 
 
 void loop() {
-  readSensors();
 
-  checkGas();
-  checkTemp();
-  checkHumid();
-  checkLux();
  
- // updateMode ();
-  //controlLogic();
-Serial.print("GAS: ");
-Serial.println(gasValue);
-Serial.print("LUX: ");
-Serial.println(lux);
-delay(1000);
+ if (!client.connected()) {
+    reconnectMQTT();
+  }
 
+  client.loop();
+
+  if (millis() - lastPublish >= publishInterval) {
+    lastPublish = millis();
+
+    readSensors();
+    updateStates();
+    publishData();
+
+}
 }
 
 
