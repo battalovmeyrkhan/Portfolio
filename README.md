@@ -1,6 +1,6 @@
 # IoT Environmental Monitoring System (ESP32)
 
-Этот проект — моя первая работа с микроконтроллером ESP32.
+Этот проект - моя первая работа с микроконтроллером ESP32.
 Идея проекта появилась после анализа проблем в агропромышленности, связанных с хранением продуктов питания.
 Были выявлены несколько проблем:
 1) Сложность соблюдения норм и условий хранения продуктов.
@@ -13,8 +13,17 @@
 
 //Проект еще не до конца завершен.//
 
+update: Добавлена телеметрия, подключение к WIFI и MQTT. Данные в виде строк состояний скидываются в специальную консоль
+
 
 <img width="892" height="610" alt="image" src="https://github.com/user-attachments/assets/62b5eddf-ee85-452b-8849-79ab43ae8fde" />
+
+
+<img width="1009" height="912" alt="image" src="https://github.com/user-attachments/assets/30bd48f2-a568-423d-a96f-aef05e774fe9" />
+
+<img width="806" height="277" alt="image" src="https://github.com/user-attachments/assets/5822982d-bc84-4538-bf9b-b93598ae6fe6" />
+
+
 
 
 
