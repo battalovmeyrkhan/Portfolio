@@ -61,7 +61,7 @@ Planned features:
 - data logging
 - alert notifications
 
-- Logic: Priority-based environmental monitoring Gas → Temperature → Humidity → Light
+Logic: Priority-based environmental monitoring Gas → Temperature → Humidity → Light
 
 
 
