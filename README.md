@@ -8,6 +8,48 @@
 3) Потери продукции из-за порчи и заболеваний овощей.
 В качестве решения была предложена идея автоматизированной встроенной системы мониторинга и управления условиями хранения картофеля  одного из самых распространённых сельскохозяйственных продуктов.
 
+Sensors:
+- DHT22 (temperature & humidity)
+- MQ gas sensor
+- Photoresistor (light level)
+
+Controller:
+- ESP32
+
+Communication:
+- WiFi
+- MQTT (HiveMQ Cloud)
+
+
+Technologies Used
+
+- C++
+- ESP32
+- Arduino Framework
+- MQTT
+- WiFi
+- HiveMQ Cloud
+- Wokwi simulation
+
+
+
+- Project Status
+
+Current features:
+✔ sensor monitoring  
+✔ priority-based system logic  
+✔ WiFi connectivity  
+✔ MQTT telemetry  
+
+Planned features:
+- RTOS implementation
+- cloud dashboard
+- data logging
+- alert notifications
+
+- Logic: Priority-based environmental monitoring Gas → Temperature → Humidity → Light
+
+
 
 Проект рассматривается как прототип IoT-системы для реального рынка.
 
