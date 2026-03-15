@@ -1,46 +1,32 @@
-// настройка датчика
 #include "DHT.h"
-// подключение библиотек для вайфай и mqtt
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
+#include <HTTPClient.h>
 
 #define DHTPIN 4
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
-// Переменные для хранения датчиков
+
 float temperature;
 float humidity;
 int gasValue;
 int lux;
 
-// Чтение датчиков
- void readSensors() {
- temperature = dht.readTemperature();
-humidity = dht.readHumidity();
-gasValue = analogRead(34);
-int sum = 0;
-  for (int i = 0; i < 10; i++) {
-    sum += analogRead(36);
-  }
-  lux = sum / 10;
- }
-
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
 
-// подключение к mqtt (пароль и сервер я убрал для безопаснсти)
-const char* mqtt_server = "";
+
+
+const char* mqtt_server = "your-broker-url";
 const int mqtt_port = 8883;
 
-
-const char* mqtt_user = "esp32";
-const char* mqtt_pass = "";
+const char* mqtt_user = "your-username";
+const char* mqtt_pass = "your-password";
 
 unsigned long lastPublish = 0;
 const unsigned long publishInterval = 5000;
 
-// функция для обратной связи
 void reconnectMQTT() {
   while (!client.connected()) {
     Serial.print("Connecting to MQTT...");
@@ -55,22 +41,35 @@ void reconnectMQTT() {
     }
   }
 }
+ 
+ 
+ 
+ void readSensors() {
+ temperature = dht.readTemperature();
+humidity = dht.readHumidity();
+gasValue = analogRead(34);
+int sum = 0;
+  for (int i = 0; i < 10; i++) {
+    sum += analogRead(36);
+  }
+  lux = sum / 10;
+ }
 
- // Пороговые значения
+ 
  float tmpSTOP1 = 1.9;
  float tmpSTOP2 = 4.1;
  float humidSTOP1 = 90;
  float humidSTOP2 = 95;
- float luxSTOP=10;
- float gasSTOP = 1500;
-// Состояние систем
+ float luxSTOP=4000;
+ float gasSTOP = 3700;
+
 enum SystemMode {
   NORMAL,
   EMERGENCY
 };
 SystemMode systemMode;
 
-// Варианты, для легкого определения состояния, которые выдаются датчиками
+
 enum Gasstates {
 GAS_OK,
 GAS_CRITICAL
@@ -98,7 +97,6 @@ LUX_OK
 };
 Luxstates luxstate;
 
-// Обновление режима системы
 void updateMode () {
   if (gasstate == GAS_CRITICAL) {
  systemMode = EMERGENCY;
@@ -141,6 +139,41 @@ if (lux > luxSTOP){
 } else {
   luxstate = LUX_OK;
 }
+}
+
+void connectWiFi() {
+  Serial.print("Connecting to WiFi");
+  WiFi.begin("Wokwi-GUEST", "");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(300);
+    Serial.print(".");
+  }
+
+  Serial.println(" Connected!");
+  Serial.print("ESP32 IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+
+
+
+
+void startVentilation(){
+  Serial.println("Запущена вентиляция");
+}
+void startCooling(){
+  Serial.println("Запущено охлаждение");
+}
+void startHeating(){
+  Serial.println("Запущено обогрев");
+}
+void startHumidifier(){
+Serial.println("Запущено увлажнение");
+}
+void startDehumidifier(){
+  Serial.println("Запущено осушение");
+}
 
 void updateStates() {
   checkTemp();
@@ -149,7 +182,7 @@ void updateStates() {
   checkLux();
   updateMode();
 }
-// телеметрия
+
 void publishData() {
 
   String payload = "{";
@@ -166,34 +199,31 @@ Serial.println("MQTT data published");
 }
 
 
- 
-}
-// Логика системы и оутпут
+
 void controlLogic(){
 if (systemMode == EMERGENCY) {
     Serial.println("EMERGENCY MODE");
-    Serial.println("Включается выдув воздуха");
-    Serial.println("Включается подача свежего воздуха");
+    startVentilation();
   } 
   else if (systemMode == NORMAL) {
     Serial.println("NORMAL MODE");
   }
   if (tempstate == TEMP_HIGH){
     Serial.println("Высокая температура");
-    Serial.println("Включается кондиционер");
+    startCooling();
   }else if (tempstate == TEMP_LOW){
     Serial.println("Низкая температура");
-    Serial.println("Включается обогрев");
+    startHeating();
   }else {
     Serial.println("Температура в норме");
   }
 
   if (humidstate == HUMID_LOW) {
     Serial.println("Низкая влажность");
-    Serial.println("Включачется увлажнитель");
+    startHumidifier();
   }else if (humidstate == HUMID_HIGH){
     Serial.println("Высокая влажность");
-    Serial.println("Включается осушение");
+    startDehumidifier();
   }else{
     Serial.println("Влажность в норме");
   }
@@ -201,11 +231,13 @@ if (systemMode == EMERGENCY) {
   if (luxstate == LUX_CRITICAL){
     Serial.println("СИГНАЛИЗЭЙШН");
   }else {
-    Serial.println("Яркость в норме);
+    Serial.println("Яркость в норме");
   }
 }
 
-// Для проверки работоспособности датчиков
+
+
+
 void printTempState() {
 
   if (tempstate == TEMP_LOW) {
@@ -222,10 +254,12 @@ void printTempState() {
 }
 
 
+
+
 void setup() {
+  
   Serial.begin(115200);
   dht.begin();
- // подключение к вай-фай
   Serial.print("Connecting to WiFi");
   WiFi.begin("Wokwi-GUEST", "" );
   while (WiFi.status() != WL_CONNECTED) {
@@ -240,24 +274,35 @@ void setup() {
 
 
 
+
+
+  
 void loop() {
+   readSensors();
 
- 
- if (!client.connected()) {
-    reconnectMQTT();
-  }
+  checkGas();
+  checkTemp();
+  checkHumid();
+  checkLux();
 
-  client.loop();
+  reconnectMQTT();
+  publishData();
+  delay(1000);
+
+
 
   if (millis() - lastPublish >= publishInterval) {
+
     lastPublish = millis();
-
-    readSensors();
-    updateStates();
-    publishData();
-
+  }
 }
-}
+
+
+
+
+  
+
+
 
 
 
