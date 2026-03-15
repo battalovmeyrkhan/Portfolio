@@ -60,6 +60,8 @@ InfluxDB
 ↓  
 Grafana Dashboard  
 
+Pictures in the "images" folder
+
 ---
 
 ## Data Pipeline
