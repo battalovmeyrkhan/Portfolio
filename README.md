@@ -176,3 +176,6 @@ Latest updates:
 - Node-RED integration added
 - InfluxDB data storage added
 - Grafana visualization added
+
+
+
