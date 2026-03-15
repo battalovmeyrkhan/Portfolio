@@ -18,6 +18,16 @@ This project is considered a prototype IoT solution for real-world applications.
 
 ---
 
+## Configuration
+
+Before running the project, replace the placeholder credentials in the code:
+
+- `your-broker-url`
+- `your-username`
+- `your-password`
+
+---
+
 ## Hardware
 
 ### Sensors
