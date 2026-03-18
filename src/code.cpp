@@ -18,11 +18,11 @@ PubSubClient client(espClient);
 
 
 
-const char* mqtt_server = "8fc77d607600472095339eef15e1f740.s1.eu.hivemq.cloud";
+const char* mqtt_server = "";
 const int mqtt_port = 8883;
 
-const char* mqtt_user = "esp32";
-const char* mqtt_pass = "Hanhan12345";
+const char* mqtt_user = "";
+const char* mqtt_pass = "";
 
 unsigned long lastPublish = 0;
 
