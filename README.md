@@ -62,6 +62,28 @@ Grafana Dashboard
 
 Pictures in the "images" folder
 
+The system was refactored using FreeRTOS to improve modularity, responsiveness, and scalability.
+
+Instead of a single loop-based structure, the system is now divided into independent concurrent tasks:
+
+- taskSensors → reads sensor data  
+- taskControl → processes system states and logic  
+- taskNetwork → maintains WiFi and MQTT connection  
+- taskPublish → sends telemetry data to MQTT  
+
+Data flow between tasks is implemented using a FreeRTOS Queue:
+
+Sensors Task → Queue → Publish Task  
+
+This approach ensures:
+
+- safe data exchange between tasks  
+- better system stability  
+- non-blocking execution  
+- separation of responsibilities  
+
+---
+
 ---
 
 ## Data Pipeline
@@ -149,24 +171,23 @@ Gas → Temperature → Humidity → Light
 
 ## Current Features
 
-- sensor monitoring
-- priority-based system logic
-- WiFi connectivity
-- MQTT telemetry
-- Node-RED integration
-- data storage in InfluxDB
-- visualization in Grafana
+- sensor monitoring  
+- priority-based system logic  
+- WiFi connectivity  
+- MQTT telemetry  
+- Node-RED integration  
+- data storage in InfluxDB  
+- visualization in Grafana  
+- FreeRTOS task-based architecture  
+- inter-task communication using Queue  
 
 ---
 
 ## Planned Features
 
-- FreeRTOS implementation
-- actuator control
 - notification system
-- automatic climate control
-- cloud monitoring
 - physical device prototype
+- digital twin integration  
 
 ---
 
@@ -178,16 +199,43 @@ Wokwi ESP32 Simulator
 
 ---
 
-## Project Status
+## 🧾 Project Conclusion
 
-The project is still under development.
+This project demonstrates the development of a complete IoT monitoring system based on the ESP32 microcontroller.
 
-Latest updates:
+During the development process, the system evolved from a simple sensor data collection prototype into a structured and scalable embedded system.
 
-- MQTT telemetry implemented
-- Node-RED integration added
-- InfluxDB data storage added
-- Grafana visualization added
+The final Version 1 (V1) includes:
+
+- real-time environmental monitoring (temperature, humidity, gas, light)  
+- end-to-end data pipeline (ESP32 → MQTT → Node-RED → InfluxDB → Grafana)  
+- implementation of system logic and condition analysis  
+- transition from a loop-based design to a FreeRTOS-based architecture  
+- separation of system responsibilities into independent tasks  
+- safe inter-task communication using Queue  
+
+As a result, the system is no longer just a prototype, but a foundation for a real-world industrial IoT solution.
+
+The project also highlights key engineering concepts:
+
+- embedded systems design  
+- asynchronous communication (MQTT)  
+- time-series data processing  
+- real-time monitoring and visualization  
+- RTOS-based system architecture  
+
+This project serves as a strong base for further development, including:
+
+- integration of actuators  
+- implementation of predictive maintenance  
+- development of a digital twin  
+- deployment of a physical prototype  
+
+Overall, this work reflects a transition from basic IoT experimentation to a more structured and production-oriented system design.
+
+---
+
+
 
 
 
